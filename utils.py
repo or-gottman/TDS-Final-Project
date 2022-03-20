@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 
+#Patterns Mining
+from efficient_apriori import apriori
+
 def preprocess_df(dtf):
 
     # Defining numeric and categorical columns
@@ -28,3 +31,40 @@ def preprocess_df(dtf):
 
     return dtf
 
+
+
+def mine_labeled_df_association_rules(dtf, label_title):
+
+    df = dtf.copy()
+
+    # split dataframe to partitions, based on the label
+    partitions_dict = dict(iter(df.groupby(label_title)))
+
+    # we now have a dictionary (partitions_dict), where the keys are the different labels,
+    # and their values are the corresponding dataframe rows that have that label
+
+    # converting to transactions:
+    records, transactions = dict(), dict()
+    for key in partitions_dict.keys():
+        records[key] = partitions_dict[key].to_dict(orient='records')
+        transactions[key] = []
+        for r in records[key]:
+            transactions[key].append(list(r.items()))
+
+    # mine association rules, using apriori algorithm, from every df independently, and add to list of total rules
+    total_rules = list()
+    for key in transactions.keys():
+        itemsets, rules = apriori(transactions[key], min_support=0.5, min_confidence=0.8)
+        total_rules.extend(rules)
+
+    return total_rules
+
+
+def mine_association_rules(dtf):
+    records = dtf.to_dict(orient='records')
+    transactions = []
+    for r in records:
+        transactions.append(list(r.items()))
+
+    itemsets, rules = apriori(transactions, min_support=0.5, min_confidence=0.8)
+    return rules

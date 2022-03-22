@@ -1,5 +1,5 @@
-# TDS-Final-Project
-By Or Gottman and Roee Oscar
+# Tabular Data Science - Final Project
+By Or Gottman and Roee Oscar.
 
 ## About the Project
 In this project we tried to improve the process of Association Rules Mining. 

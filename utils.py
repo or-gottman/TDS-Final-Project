@@ -1,12 +1,33 @@
 #data processing
 import pandas as pd
-import numpy as np
-import scipy as sp
 
 #Patterns Mining
 from efficient_apriori import apriori
+from sklearn import preprocessing
 
-def preprocess_df(dtf):
+
+def label_encoding(df, ordinal_columns):
+    label_encoded_df = df.copy(deep=True)
+    for column in ordinal_columns:
+        # label_encoder object knows how to understand word labels
+        label_encoder = preprocessing.LabelEncoder()
+        # Encode labels in column
+        label_encoded_df[column] = label_encoder.fit_transform(label_encoded_df[column])
+    return label_encoded_df
+
+
+def one_hot_encoding(df, categorical_columns):
+    other_columns = set(df.columns) - set(categorical_columns)
+    onehot_df = df[other_columns]
+    # Convert all categorical columns to one hot encoding
+    for column in categorical_columns:
+        onehot_col = pd.get_dummies(df[column], prefix=column)
+        onehot_df = pd.concat([onehot_df, onehot_col], axis=1)
+    return onehot_df
+
+def preprocess_df(df):
+
+    dtf = df.copy()
 
     # Defining numeric and categorical columns
     numeric_columns = dtf.dtypes[(dtf.dtypes == "float64") | (dtf.dtypes == "int64")].index.tolist()
